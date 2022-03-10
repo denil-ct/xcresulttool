@@ -113,6 +113,11 @@ jobs:
     #
     # Default: true
     show-code-coverage:
+
+    # Add head commit sha if necessary.
+    #
+    # Optional value
+    commit-sha:
 ```
 
 ## Limitations

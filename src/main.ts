@@ -15,6 +15,7 @@ async function run(): Promise<void> {
     const inputPaths = core.getMultilineInput('path')
     const showPassedTests = core.getBooleanInput('show-passed-tests')
     const showCodeCoverage = core.getBooleanInput('show-code-coverage')
+    const commitSHA = core.getInput('commit-sha')
 
     const bundlePaths: string[] = []
     for (const checkPath of inputPaths) {
@@ -47,7 +48,7 @@ async function run(): Promise<void> {
       const repo = github.context.repo.repo
 
       const pr = github.context.payload.pull_request
-      const sha = (pr && pr.head.sha) || github.context.sha
+      const sha = commitSHA || (pr && pr.head.sha) || github.context.sha
 
       const charactersLimit = 65535
       let title = core.getInput('title')
