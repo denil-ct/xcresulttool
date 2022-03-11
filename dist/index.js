@@ -1189,6 +1189,8 @@ function run() {
             const showPassedTests = core.getBooleanInput('show-passed-tests');
             const showCodeCoverage = core.getBooleanInput('show-code-coverage');
             const commitSHA = core.getInput('commit-sha');
+            const showOverflowErrors = core.getBooleanInput('show-overflow-error');
+            const showOnlyErrorAnnotations = core.getBooleanInput('show-only-error-annotations');
             const bundlePaths = [];
             for (const checkPath of inputPaths) {
                 try {
@@ -1222,38 +1224,56 @@ function run() {
                 const charactersLimit = 65535;
                 let title = core.getInput('title');
                 if (title.length > charactersLimit) {
-                    core.error(`The 'title' will be truncated because the character limit (${charactersLimit}) exceeded.`);
+                    if (showOverflowErrors) {
+                        core.error(`The 'title' will be truncated because the character limit (${charactersLimit}) exceeded.`);
+                    }
                     title = title.substring(0, charactersLimit);
                 }
                 let reportSummary = report.reportSummary;
                 if (reportSummary.length > charactersLimit) {
-                    core.error(`The 'summary' will be truncated because the character limit (${charactersLimit}) exceeded.`);
+                    if (showOverflowErrors) {
+                        core.error(`The 'summary' will be truncated because the character limit (${charactersLimit}) exceeded.`);
+                    }
                     reportSummary = reportSummary.substring(0, charactersLimit);
                 }
                 let reportDetail = report.reportDetail;
                 if (reportDetail.length > charactersLimit) {
-                    core.error(`The 'text' will be truncated because the character limit (${charactersLimit}) exceeded.`);
+                    if (showOverflowErrors) {
+                        core.error(`The 'text' will be truncated because the character limit (${charactersLimit}) exceeded.`);
+                    }
                     reportDetail = reportDetail.substring(0, charactersLimit);
                 }
                 if (report.annotations.length > 50) {
-                    core.error('Annotations that exceed the limit (50) will be truncated.');
+                    if (showOverflowErrors) {
+                        core.error('Annotations that exceed the limit (50) will be truncated.');
+                    }
                 }
-                const annotations = report.annotations.slice(0, 50);
+                var annotations = report.annotations.slice(0, 50);
+                if (showOnlyErrorAnnotations) {
+                    annotations = annotations.filter(annotation => annotation.title == 'error');
+                }
                 let output;
-                if (reportDetail.trim()) {
+                if (annotations.length > 0) {
                     output = {
-                        title: 'Xcode test results',
-                        summary: reportSummary,
-                        text: reportDetail,
+                        title: 'Errors',
+                        summary: 'Please find the errors below as annotations.',
                         annotations
                     };
                 }
                 else {
-                    output = {
-                        title: 'Xcode test results',
-                        summary: reportSummary,
-                        annotations
-                    };
+                    if (reportDetail.trim()) {
+                        output = {
+                            title: 'Xcode test results',
+                            summary: reportSummary,
+                            text: reportDetail
+                        };
+                    }
+                    else {
+                        output = {
+                            title: 'Xcode test results',
+                            summary: reportSummary
+                        };
+                    }
                 }
                 yield octokit.checks.create({
                     owner,

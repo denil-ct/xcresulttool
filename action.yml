@@ -20,6 +20,12 @@ inputs:
   commit-sha:
     desciption: 'Head Commit SHA'
     required: false
+  show-overflow-error:
+    description: 'Whether to show overflow errors as annotations'
+    default: true
+  show-only-error-annotations:
+    description: 'Whether to filter only error annotations'
+    default: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

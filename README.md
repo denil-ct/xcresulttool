@@ -118,6 +118,16 @@ jobs:
     #
     # Optional value
     commit-sha:
+
+    # Whether to show overflow errors as annotations
+    #
+    # Optional value
+    show-overflow-error:
+
+    # Whether to filter only error annotations
+    #
+    # Optional value
+    show-only-error-annotations:
 ```
 
 ## Limitations
